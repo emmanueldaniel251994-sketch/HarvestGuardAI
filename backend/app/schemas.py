@@ -25,3 +25,20 @@ class TelemetryResponse(BaseModel):
     readings: list[TelemetryReading]
     risk: RiskAssessment
     notice: str = "Simulated data only; not a live sensor feed."
+
+
+class ColdRoomCreate(BaseModel):
+    name: str = Field(min_length=2, max_length=120)
+    location: str = Field(min_length=2, max_length=200)
+    commodity: str = Field(min_length=2, max_length=100)
+    target_min_c: float = Field(default=2.0, ge=-30, le=30)
+    target_max_c: float = Field(default=8.0, ge=-20, le=40)
+    notes: str | None = Field(default=None, max_length=2000)
+    active: bool = True
+
+
+class ColdRoomRead(ColdRoomCreate):
+    id: int
+    created_at: datetime
+
+    model_config = {"from_attributes": True}
