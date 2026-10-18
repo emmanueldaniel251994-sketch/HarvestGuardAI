@@ -149,6 +149,31 @@ export default function ColdRooms() {
     }
   }
   const inputClass = "mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/15";
+
+  function exportReadingsCsv() {
+    if (!history.length) return;
+    const columns: (keyof Reading)[] = [
+      "timestamp", "temperature_c", "humidity_pct", "battery_pct", "solar_power_w", "load_power_w",
+    ];
+    const cell = (value: unknown) => {
+      const text = String(value ?? "");
+      return /[",\r\n]/.test(text) ? '"' + text.replace(/"/g, '""') + '"' : text;
+    };
+    const csv = [
+      columns.join(","),
+      ...history.map((reading) => columns.map((column) => cell(reading[column])).join(",")),
+    ].join("\r\n");
+    const blob = new Blob(["\uFEFF", csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = "harvestguard-room-" + selectedRoomId + "-readings.csv";
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
+    URL.revokeObjectURL(url);
+  }
+
   const selectedRoom = rooms.find((room) => String(room.id) === selectedRoomId);
 
   return (
@@ -239,7 +264,7 @@ export default function ColdRooms() {
         {notice && <p role="status" className="mt-3 text-sm text-emerald-700">{notice}</p>}
         {error && <p role="alert" className="mt-3 text-sm text-rose-700">{error}</p>}
         <div className="mt-5 flex items-center justify-between gap-3">
-          <h3 className="font-semibold">Stored readings</h3>
+          <div className="flex items-center gap-3"><h3 className="font-semibold">Stored readings</h3><button type="button" disabled={!history.length || loadingHistory} onClick={exportReadingsCsv} className="rounded-lg border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50">Export CSV</button></div>
           <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">{history.length} shown</span>
         </div>
         {loadingHistory ? (
