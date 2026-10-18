@@ -2,23 +2,20 @@
 
 **Predict. Protect. Preserve.** An evidence-driven monitoring and predictive-risk platform for solar-powered agricultural cold storage, initially targeting Nigeria.
 
-> **Data transparency:** The initial release uses deterministic simulated telemetry. It does not connect to physical sensors and does not control refrigeration, batteries, inverters, or electrical circuits. Outputs are advisory.
+> **Data transparency:** The current prototype uses deterministic simulated telemetry. It does not connect to physical sensors and does not control refrigeration, batteries, inverters, or electrical circuits. Outputs are advisory.
 
 ## Architecture
 
-- `frontend/`: Next.js + TypeScript application.
-- `backend/`: FastAPI service, validation, domain logic, persistence, simulator and ML interfaces.
-- `ml/`: datasets, experiments and evaluation artifacts.
-- `docs/`: architecture, API, model card, data dictionary, deployment, security and demo documentation.
-
-See [Architecture](docs/ARCHITECTURE.md) and [Deployment](docs/DEPLOYMENT.md).
+- `frontend/`: Next.js + TypeScript dashboard.
+- `backend/`: FastAPI API, SQLAlchemy persistence, Alembic migrations, simulator, and rule-based risk assessment.
+- `docs/`: architecture, API, data dictionary, deployment and safety notes.
 
 ## Prerequisites
 
-- Python 3.11+ (3.12 recommended for broad package compatibility)
+- Python 3.11+
 - Node.js 20.9+ and npm
-- Docker Compose (optional, for local PostgreSQL)
 - Git
+- Docker Compose (optional, for local PostgreSQL)
 
 ## Local setup
 
@@ -31,10 +28,11 @@ python -m venv .venv
 # Windows PowerShell: .venv\\Scripts\\Activate.ps1
 pip install -r requirements.txt
 cp .env.example .env  # Windows: Copy-Item .env.example .env
+alembic upgrade head
 uvicorn app.main:app --reload
 ```
 
-API health: `http://127.0.0.1:8000/health`. API docs: `http://127.0.0.1:8000/docs` in development.
+API health: `http://127.0.0.1:8000/health`. Interactive API docs: `http://127.0.0.1:8000/docs`.
 
 ### Frontend
 
@@ -45,11 +43,11 @@ cp .env.example .env.local  # Windows: Copy-Item .env.example .env.local
 npm run dev
 ```
 
-Frontend: `http://localhost:3000`.
+Frontend: `http://localhost:3000`. Set `NEXT_PUBLIC_API_URL` to the backend base URL when the API is deployed.
 
-### PostgreSQL (optional in the initial foundation)
+### PostgreSQL (optional for local development)
 
-From the repository root, run `docker compose up -d db`. Set `DATABASE_URL` in `backend/.env` to the local PostgreSQL connection string. The current health endpoint does not yet assert database readiness; that will be added with the persistence phase.
+From the repository root, run `docker compose up -d db`. Configure `DATABASE_URL` in `backend/.env` to the local PostgreSQL connection string before running migrations.
 
 ## Tests
 
@@ -59,10 +57,22 @@ pip install -r requirements.txt
 pytest
 ```
 
-## Current status
+## Implemented so far
 
-Phase 1 foundation: project structure, configuration examples, initial health endpoint, tests, CI skeleton, and architecture/deployment/security documentation. Cold-room persistence, telemetry simulation, risk calculations, frontend dashboard, predictive evaluation, Meta AI provider, and production deployment are subsequent phases and must not be represented as completed yet.
+- FastAPI health endpoint.
+- Cold-room registration and listing API.
+- SQLAlchemy cold-room model and initial Alembic migration.
+- Reproducible simulated telemetry endpoint.
+- Explainable threshold-based risk assessment.
+- Dashboard component that requests telemetry from the API.
+- Initial backend tests and GitHub Actions workflow.
 
-### Database migrations
+## Planned next
 
-From `backend/`, set `DATABASE_URL` to the intended database and run `alembic upgrade head`. Review migration scripts before applying them to production. The first migration creates the `cold_rooms` table.
+- Validate CI and frontend production build.
+- Persist telemetry records and add time-series endpoints.
+- Add commodity-specific profiles with reviewed thresholds.
+- Add baseline ML experiments, metrics and model card before making predictive claims.
+- Deploy frontend to Vercel and backend to Render.
+
+All demo readings and prototype risk scores are illustrative. Do not use them for food-safety decisions or equipment control.
