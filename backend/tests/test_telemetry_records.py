@@ -83,3 +83,65 @@ def test_bulk_ingest_persists_multiple_readings(client: TestClient) -> None:
     history = client.get(f"/api/v1/cold-rooms/{room_id}/readings")
     assert history.status_code == 200
     assert len(history.json()) == 3
+
+
+def test_device_ingestion_requires_configured_api_key(client: TestClient, monkeypatch) -> None:
+    from app.config import settings
+
+    monkeypatch.setattr(settings, "device_api_key", "test-device-secret")
+    room_response = client.post(
+        "/api/v1/cold-rooms",
+        json={
+            "name": "Protected Room",
+            "location": "Ado-Ekiti",
+            "commodity": "Tomatoes",
+            "target_min_c": 3,
+            "target_max_c": 8,
+        },
+    )
+    assert room_response.status_code == 201
+    room_id = room_response.json()["id"]
+    reading = {
+        "timestamp": "2026-10-18T10:00:00Z",
+        "temperature_c": 4.5,
+        "humidity_pct": 68,
+        "battery_pct": 77,
+        "solar_power_w": 410,
+        "load_power_w": 320,
+    }
+
+    missing_key = client.post(f"/api/v1/cold-rooms/{room_id}/readings", json=reading)
+    assert missing_key.status_code == 401
+    wrong_key = client.post(
+        f"/api/v1/cold-rooms/{room_id}/readings",
+        json=reading,
+        headers={"X-Device-API-Key": "wrong"},
+    )
+    assert wrong_key.status_code == 401
+    valid_key = client.post(
+        f"/api/v1/cold-rooms/{room_id}/readings",
+        json=reading,
+        headers={"X-Device-API-Key": "test-device-secret"},
+    )
+    assert valid_key.status_code == 201
+
+
+def test_device_ingestion_fails_closed_in_production_without_key(
+    client: TestClient, monkeypatch
+) -> None:
+    from app.config import settings
+
+    monkeypatch.setattr(settings, "app_env", "production")
+    monkeypatch.setattr(settings, "device_api_key", "")
+    response = client.post(
+        "/api/v1/cold-rooms/1/readings",
+        json={
+            "timestamp": "2026-10-18T10:00:00Z",
+            "temperature_c": 4.5,
+            "humidity_pct": 68,
+            "battery_pct": 77,
+            "solar_power_w": 410,
+            "load_power_w": 320,
+        },
+    )
+    assert response.status_code == 503
