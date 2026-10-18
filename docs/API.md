@@ -50,6 +50,12 @@ Submit one validated reading for an existing cold room. The endpoint returns `40
 
 Returns stored readings newest first. `limit` is between 1 and 500, default 100. A missing cold room returns `404`.
 
+### Assess stored-reading risk
+
+`GET /api/v1/cold-rooms/{cold_room_id}/risk?limit=24`
+
+Returns an advisory rule-based score and explanatory factors for up to the newest 168 stored readings (default 24). Returns `404` if the cold room does not exist. With no stored readings, the score is zero and the factors state that no readings are available. This is not a trained ML prediction or validated food-safety advice.
+
 ## Simulated telemetry
 
 `GET /api/v1/demo/telemetry?samples=24&seed=42`
