@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models import ColdRoom, TelemetryRecord
 from app.risk import assess_risk
-from app.schemas import RiskAssessment, TelemetryReading, TelemetryRecordRead
+from app.schemas import RiskAssessment, TelemetryBatchCreate, TelemetryReading, TelemetryRecordRead
 
 router = APIRouter(prefix="/api/v1/cold-rooms", tags=["telemetry"])
 
@@ -28,6 +28,30 @@ def ingest_reading(
     db.commit()
     db.refresh(record)
     return record
+
+
+@router.post(
+    "/{cold_room_id}/readings/bulk",
+    response_model=list[TelemetryRecordRead],
+    status_code=status.HTTP_201_CREATED,
+)
+def ingest_readings_bulk(
+    cold_room_id: int,
+    payload: TelemetryBatchCreate,
+    db: Session = Depends(get_db),
+) -> list[TelemetryRecord]:
+    """Persist a bounded batch in one transaction for demos and trusted clients."""
+    if db.get(ColdRoom, cold_room_id) is None:
+        raise HTTPException(status_code=404, detail="Cold room not found")
+    records = [
+        TelemetryRecord(cold_room_id=cold_room_id, **reading.model_dump())
+        for reading in payload.readings
+    ]
+    db.add_all(records)
+    db.commit()
+    for record in records:
+        db.refresh(record)
+    return records
 
 
 @router.get("/{cold_room_id}/readings", response_model=list[TelemetryRecordRead])
