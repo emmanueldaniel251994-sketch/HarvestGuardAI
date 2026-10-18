@@ -6,7 +6,10 @@ from app.simulator import generate_readings
 def test_simulator_is_reproducible_for_seed() -> None:
     first = generate_readings(samples=8, seed=7)
     second = generate_readings(samples=8, seed=7)
-    fields = ("temperature_c", "humidity_pct", "battery_pct", "solar_power_w", "load_power_w")\n    assert [[getattr(item, field) for field in fields] for item in first] == [\n        [getattr(item, field) for field in fields] for item in second\n    ]
+    fields = ("temperature_c", "humidity_pct", "battery_pct", "solar_power_w", "load_power_w")
+    assert [[getattr(item, field) for field in fields] for item in first] == [
+        [getattr(item, field) for field in fields] for item in second
+    ]
 
 
 def test_simulator_bounds_sample_count() -> None:
