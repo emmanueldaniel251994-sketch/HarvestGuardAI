@@ -44,6 +44,29 @@ Temperature bounds are configurable metadata only; they are not verified commodi
 
 Submit one validated reading for an existing cold room. The endpoint returns `404` when the cold-room ID is unknown. This endpoint does not authenticate sensor devices yet; do not expose it publicly until authentication and rate limiting are added.
 
+### Record a batch of readings
+
+\`POST /api/v1/cold-rooms/{cold_room_id}/readings/bulk\`
+
+Request body:
+
+\`\`\`json
+{
+  "readings": [
+    {
+      "timestamp": "2026-10-18T10:00:00Z",
+      "temperature_c": 4.5,
+      "humidity_pct": 68,
+      "battery_pct": 77,
+      "solar_power_w": 410,
+      "load_power_w": 320
+    }
+  ]
+}
+\`\`\`
+
+Accepts 1–168 readings and stores them in one database transaction. The endpoint is intended for demos and trusted clients until device authentication is implemented. It returns \`404\` when the cold room does not exist.
+
 ### List readings
 
 `GET /api/v1/cold-rooms/{cold_room_id}/readings?limit=100`
