@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
 from app.risk import assess_risk
 from app.schemas import TelemetryResponse
-from app.simulator import generate_readings
+from app.simulator import generate_readings\nfrom app.rooms import router as cold_rooms_router
 
 app = FastAPI(
     title="HarvestGuard AI API",
