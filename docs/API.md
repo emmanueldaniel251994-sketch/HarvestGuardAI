@@ -46,7 +46,7 @@ Temperature bounds are configurable metadata only; they are not verified commodi
 
 `POST /api/v1/cold-rooms/{cold_room_id}/readings`
 
-Submit one validated reading for an existing cold room. The endpoint returns `404` when the cold-room ID is unknown. This endpoint does not authenticate sensor devices yet; do not expose it publicly until authentication and rate limiting are added.
+Submit one validated reading for an existing cold room. The endpoint returns `404` when the cold-room ID is unknown. Requires the `X-Device-API-Key` header when `DEVICE_API_KEY` is configured. Production fails closed with `503` if the server key is missing. In local development with no key configured, the dependency permits writes for convenience. A shared key is not full per-device authentication.
 
 ### Record a batch of readings
 
@@ -69,9 +69,15 @@ Request body:
 }
 ```
 
-Accepts 1–168 readings and stores them in one database transaction. The endpoint is intended for demos and trusted clients until device authentication is implemented. It returns `404` when the cold room does not exist.
+Accepts 1–168 readings and stores them in one database transaction. Requires `X-Device-API-Key` when the server key is configured; production fails closed if it is missing. It returns `404` when the cold room does not exist.
 
-### List readings
+#### Save generated demo readings
+
+`POST /api/v1/cold-rooms/{cold_room_id}/readings/demo?samples=24&seed=42`
+
+Creates 1–168 synthetic readings on the server and stores them for the selected cold room. It accepts no client-supplied measurement payload and is intended only for demonstrations. It returns `404` for an unknown room. Clearly label the returned data as simulated.
+
+## List readings
 
 `GET /api/v1/cold-rooms/{cold_room_id}/readings?limit=100`
 
