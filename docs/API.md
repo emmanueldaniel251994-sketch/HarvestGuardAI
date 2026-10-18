@@ -81,7 +81,7 @@ Returns stored readings newest first. `limit` is between 1 and 500, default 100.
 
 `GET /api/v1/cold-rooms/{cold_room_id}/risk?limit=24`
 
-Returns an advisory rule-based score and explanatory factors for up to the newest 168 stored readings (default 24). Returns `404` if the cold room does not exist. With no stored readings, the score is zero and the factors state that no readings are available. This is not a trained ML prediction or validated food-safety advice.
+Returns an advisory rule-based score and explanatory factors for up to the newest 168 stored readings (default 24). Temperature excursions use the selected cold room's configured `target_min_c` and `target_max_c` metadata. Returns `404` if the cold room does not exist. With no stored readings, the score is zero and the factors state that no readings are available. Configured ranges must be reviewed for the commodity; the score is not a trained ML prediction or validated food-safety advice.
 
 ## Simulated telemetry
 
