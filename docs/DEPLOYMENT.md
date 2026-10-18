@@ -11,6 +11,8 @@ This document describes the intended deployment path; it does not mean the servi
 
 ## Backend — Render
 
+A starter blueprint is provided in the repository root as `render.yaml`. You can create a Render Blueprint from the repository or configure the service manually. The manifest uses the `backend` directory and runs Alembic migrations during the build. Review Render plan limitations and logs during setup.
+
 1. Create a Web Service from this repository.
 2. Set the root directory to `backend`.
 3. Build command: `pip install -r requirements.txt`.
