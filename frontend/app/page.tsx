@@ -1,4 +1,5 @@
 import DemoTelemetry from "./DemoTelemetry";
+import ColdRooms from "./ColdRooms";
 
 export default function Home() {
   return (
@@ -22,6 +23,7 @@ export default function Home() {
           </p>
         </div>
         <DemoTelemetry />
+        <ColdRooms />
         <section className="mt-8 rounded-2xl border border-slate-200 bg-white p-6">
           <h2 className="text-lg font-semibold">What comes next</h2>
           <div className="mt-4 grid gap-4 sm:grid-cols-3">
