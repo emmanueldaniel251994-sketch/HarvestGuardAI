@@ -75,7 +75,7 @@ pytest
 ## Planned next
 
 - Verify CI and frontend production build.
-- Add authenticated device ingestion before real sensor integration.
+- Add per-device identity, key rotation/revocation, user authentication for room/history/risk endpoints, and rate limiting before public production use.
 - Add commodity-specific profiles with reviewed thresholds.
 - Collect representative independently labelled data, run and review the optional ML experiment, and publish metrics/model card before making predictive claims.
 - Deploy frontend to Vercel and backend to Render.
