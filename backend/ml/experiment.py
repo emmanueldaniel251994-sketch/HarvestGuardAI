@@ -73,6 +73,13 @@ def run_experiment(csv_path: Path, output_dir: Path) -> dict[str, object]:
     feature_columns = NUMERIC_FEATURES + CATEGORICAL_FEATURES
     x_train, x_test = train[feature_columns], test[feature_columns]
     y_train, y_test = train["risk_label"].astype(str), test["risk_label"].astype(str)
+    unseen_test_labels = sorted(set(y_test) - set(y_train))
+    if unseen_test_labels:
+        raise ValueError(
+            "The chronological test period contains labels absent from training: "
+            + ", ".join(unseen_test_labels)
+            + ". Gather more time-spanning labelled data before evaluating."
+        )
 
     baseline = build_pipeline(DummyClassifier(strategy="most_frequent"))
     candidate = build_pipeline(
