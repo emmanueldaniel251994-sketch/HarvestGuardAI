@@ -61,7 +61,9 @@ pytest
 
 - FastAPI health endpoint.
 - Cold-room registration and listing API.
-- Persisted telemetry ingestion and history endpoints.\n- Per-cold-room advisory risk endpoint based on stored readings.\n- Dashboard view for registered rooms, stored reading history, and risk factors.
+- Persisted telemetry ingestion and history endpoints.
+- Per-cold-room advisory risk endpoint based on stored readings.
+- Dashboard view for registered rooms, stored reading history, and risk factors.
 - SQLAlchemy cold-room and telemetry models with Alembic migrations.
 - Reproducible simulated telemetry endpoint.
 - Explainable threshold-based risk assessment.
