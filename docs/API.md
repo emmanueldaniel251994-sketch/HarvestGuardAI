@@ -6,7 +6,11 @@ Base URL for local development: `http://127.0.0.1:8000`. Interactive documentati
 
 `GET /health`
 
-Returns a simple service health response. It does not yet prove database connectivity.
+Returns a simple service health response. It does not prove database connectivity.
+
+`GET /health/ready`
+
+Executes a lightweight database query and returns `503` if the database cannot be reached. Use this for readiness checks where database availability is required.
 
 ## Cold rooms
 
