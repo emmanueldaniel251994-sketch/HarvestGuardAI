@@ -1,7 +1,11 @@
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import Depends, FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy import text
+from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.orm import Session
 
 from app.config import settings
+from app.database import get_db
 from app.risk import assess_risk
 from app.rooms import router as cold_rooms_router
 from app.schemas import TelemetryResponse
@@ -14,7 +18,7 @@ app = FastAPI(
         "Advisory monitoring and predictive-risk tools for solar-powered "
         "agricultural cold storage. Initial telemetry is simulated."
     ),
-    version="0.3.0",
+    version="0.4.0",
 )
 
 app.include_router(cold_rooms_router)
@@ -32,6 +36,16 @@ app.add_middleware(
 @app.get("/health", tags=["operations"])
 def health() -> dict[str, str]:
     return {"status": "ok", "service": "harvestguard-ai-api"}
+
+
+@app.get("/health/ready", tags=["operations"])
+def readiness(db: Session = Depends(get_db)) -> dict[str, str]:
+    """Check database connectivity in addition to process liveness."""
+    try:
+        db.execute(text("SELECT 1"))
+    except SQLAlchemyError as exc:
+        raise HTTPException(status_code=503, detail="Database is not ready") from exc
+    return {"status": "ready", "database": "connected"}
 
 
 @app.get("/", include_in_schema=False)
