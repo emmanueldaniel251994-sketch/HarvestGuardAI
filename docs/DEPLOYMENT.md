@@ -14,12 +14,10 @@ This document describes the intended deployment path; it does not mean the servi
 A starter blueprint is provided in the repository root as `render.yaml`. You can create a Render Blueprint from the repository or configure the service manually. The manifest uses the `backend` directory and runs Alembic migrations during the build. Review Render plan limitations and logs during setup.
 
 1. Create a Web Service from this repository.
-2. Set the root directory to `backend`.
-3. Build command: `pip install -r requirements.txt`.
-4. Configure `DATABASE_URL` to a managed PostgreSQL connection string and `CORS_ORIGINS` to the exact deployed frontend origin.
-5. Run the migration as a pre-deploy command: `alembic upgrade head`.
-6. Start command: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`.
-7. Verify `/health`, `/health/ready`, `/api/v1/demo/telemetry`, and `/docs` after deployment.
+2. The blueprint sets the root directory to `backend`, installs dependencies, runs `alembic upgrade head` during the build, and starts Uvicorn on Render's assigned port.
+3. Configure `DATABASE_URL` to a managed PostgreSQL connection string and `CORS_ORIGINS` to the exact deployed frontend origin.
+4. Set `DEVICE_API_KEY` to a long, random secret in Render's environment settings. Never put this secret in the frontend or repository. Sensor write endpoints fail closed in production when it is missing.
+5. Verify `/health`, `/health/ready`, `/api/v1/demo/telemetry`, and `/docs` after deployment.
 
 ## Database
 
