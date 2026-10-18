@@ -15,8 +15,8 @@ if str(BACKEND_DIR) not in sys.path:
 @pytest.fixture()
 def client():
     from app.database import Base, get_db
-    from app.main import app
-    import app.models  # noqa: F401
+    from app.main import app as fastapi_app
+    from app import models as _models  # noqa: F401
 
     test_engine = create_engine(
         "sqlite://",
@@ -33,9 +33,9 @@ def client():
         finally:
             db.close()
 
-    app.dependency_overrides[get_db] = override_get_db
-    with TestClient(app) as test_client:
+    fastapi_app.dependency_overrides[get_db] = override_get_db
+    with TestClient(fastapi_app) as test_client:
         yield test_client
-    app.dependency_overrides.clear()
+    fastapi_app.dependency_overrides.clear()
     Base.metadata.drop_all(bind=test_engine)
     test_engine.dispose()
