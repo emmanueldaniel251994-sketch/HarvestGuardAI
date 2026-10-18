@@ -125,22 +125,22 @@ export default function ColdRooms() {
     setNotice(null);
     setSeeding(true);
     try {
-      const demoResponse = await fetch(`${API_URL}/api/v1/demo/telemetry?samples=24&seed=42`);
-      if (!demoResponse.ok) throw new Error(`Demo API returned HTTP ${demoResponse.status}`);
+      const demoResponse = await fetch(API_URL + "/api/v1/demo/telemetry?samples=24&seed=42");
+      if (!demoResponse.ok) throw new Error("Demo API returned HTTP " + demoResponse.status);
       const demo = (await demoResponse.json()) as DemoPayload;
-      let saved = 0;
-      for (const reading of demo.readings) {
-        const response = await fetch(`${API_URL}/api/v1/cold-rooms/${selectedRoomId}/readings`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(reading),
-        });
-        if (!response.ok) throw new Error(`Could not save reading ${saved + 1} (HTTP ${response.status}). ${saved} readings were saved before the error.`);
-        saved += 1;
+      const response = await fetch(API_URL + "/api/v1/cold-rooms/" + selectedRoomId + "/readings/bulk", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ readings: demo.readings }),
+      });
+      if (!response.ok) {
+        const body = (await response.json().catch(() => ({}))) as { detail?: string };
+        throw new Error(body.detail || ("Could not save demo readings (HTTP " + response.status + ")."));
       }
+      const saved = (await response.json()) as Reading[];
       await loadHistory(selectedRoomId);
       setRiskRefreshKey((current) => current + 1);
-      setNotice(`Saved ${saved} simulated readings to this cold room. These are demo data, not sensor measurements.`);
+      setNotice("Saved " + saved.length + " simulated readings to this cold room. These are demo data, not sensor measurements.");
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "Could not save demo readings.");
       await loadHistory(selectedRoomId).catch(() => undefined);
@@ -148,7 +148,6 @@ export default function ColdRooms() {
       setSeeding(false);
     }
   }
-
   const inputClass = "mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/15";
   const selectedRoom = rooms.find((room) => String(room.id) === selectedRoomId);
 
