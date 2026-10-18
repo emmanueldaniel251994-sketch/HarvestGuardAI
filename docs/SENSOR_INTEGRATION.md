@@ -2,14 +2,14 @@
 
 ## Current status
 
-The current application has no physical sensor connection. The demo endpoint generates synthetic telemetry, and the ingestion endpoint accepts a JSON reading submitted by a client. This document is an integration contract proposal, not evidence of deployed hardware.
+The current application has no physical sensor connection. The demo endpoint generates synthetic telemetry, and sensor-write endpoints support a shared device API key. This document is an integration contract proposal, not evidence of deployed hardware.
 
 ## Proposed data path
 
 1. A temperature/humidity sensor and power-system telemetry source connect to an edge controller (for example, an appropriately engineered ESP32 or industrial gateway).
 2. The edge controller validates sensor readings, attaches a UTC timestamp, and buffers readings when connectivity is unavailable.
 3. The controller sends readings over HTTPS to the API after device authentication is implemented.
-4. The API validates and stores readings associated with a registered cold-room ID.
+4. The edge controller sends `X-Device-API-Key` over HTTPS; the API validates the key and stores readings associated with a registered cold-room ID. Use a distinct key per device once device registry and rotation support exist.
 5. The dashboard retrieves the stored history and calculates an advisory threshold-based risk score.
 
 Do not connect this prototype to compressor relays, battery protection circuits, inverters, or other equipment-control outputs.
@@ -35,7 +35,7 @@ Units:
 - `solar_power_w`: measured solar input power in watts.
 - `load_power_w`: measured electrical load power in watts.
 
-Current API endpoint: `POST /api/v1/cold-rooms/{cold_room_id}/readings`. It is not authenticated. Do not send real operational telemetry to a publicly accessible instance until device identity, authentication, authorization, replay protection, throttling, and audit logging are implemented.
+Current sensor-write endpoints: `POST /api/v1/cold-rooms/{cold_room_id}/readings` and `POST /api/v1/cold-rooms/{cold_room_id}/readings/bulk`. Supply the `X-Device-API-Key` header matching the server-side `DEVICE_API_KEY` environment variable. In production, writes fail closed if the key is unset. A single shared key is an initial safeguard, not full per-device identity, rotation, replay protection, throttling, or audit logging. Do not send real operational telemetry to a publicly accessible instance until these controls are reviewed and completed. The synthetic-only `POST /api/v1/cold-rooms/{cold_room_id}/readings/demo` endpoint accepts sample count and seed rather than sensor values.
 
 ## Reliability requirements before field use
 
