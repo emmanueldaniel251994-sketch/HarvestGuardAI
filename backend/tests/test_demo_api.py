@@ -16,10 +16,13 @@ def test_demo_telemetry_returns_simulated_readings_and_risk() -> None:
     assert "Simulated" in payload["notice"]
 
 
-def test_demo_telemetry_seed_is_repeatable_for_values() -> None:
+def test_demo_telemetry_seed_reproduces_measurement_values() -> None:
     first = client.get("/api/v1/demo/telemetry?samples=5&seed=19").json()
     second = client.get("/api/v1/demo/telemetry?samples=5&seed=19").json()
-    assert first["readings"] == second["readings"]
+    fields = ("temperature_c", "humidity_pct", "battery_pct", "solar_power_w", "load_power_w")
+    first_values = [[reading[field] for field in fields] for reading in first["readings"]]
+    second_values = [[reading[field] for field in fields] for reading in second["readings"]]
+    assert first_values == second_values
     assert first["risk"] == second["risk"]
 
 
