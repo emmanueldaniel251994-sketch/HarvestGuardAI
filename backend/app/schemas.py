@@ -42,3 +42,10 @@ class ColdRoomRead(ColdRoomCreate):
     created_at: datetime
 
     model_config = {"from_attributes": True}
+
+
+class TelemetryRecordRead(TelemetryReading):
+    id: int
+    cold_room_id: int
+
+    model_config = {"from_attributes": True}
