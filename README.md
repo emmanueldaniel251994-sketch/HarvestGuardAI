@@ -7,7 +7,7 @@
 ## Architecture
 
 - `frontend/`: Next.js + TypeScript dashboard.
-- `backend/`: FastAPI API, SQLAlchemy persistence, Alembic migrations, simulator, and rule-based risk assessment.
+- `backend/`: FastAPI API, SQLAlchemy persistence, Alembic migrations, simulator, rule-based risk assessment, and an optional offline ML experiment.
 - `docs/`: architecture, API, data dictionary, deployment and safety notes.
 
 ## Prerequisites
@@ -70,14 +70,14 @@ pytest
 - Dashboard component that requests telemetry from the API.
 - Database readiness endpoint and Render deployment blueprint (`render.yaml`).
 - Sensor integration contract and hackathon demo walkthrough in `docs/`.
-- Backend tests and GitHub Actions workflow configuration.
+- Optional chronological ML experiment comparing a most-frequent baseline with a random-forest candidate; requires reviewed labelled CSV data.
 
 ## Planned next
 
 - Verify CI and frontend production build.
 - Add authenticated device ingestion before real sensor integration.
 - Add commodity-specific profiles with reviewed thresholds.
-- Add baseline ML experiments, metrics and model card before making predictive claims.
+- Collect representative independently labelled data, run and review the optional ML experiment, and publish metrics/model card before making predictive claims.
 - Deploy frontend to Vercel and backend to Render.
 
 All demo readings and prototype risk scores are illustrative. Do not use them for food-safety decisions or equipment control.
