@@ -32,6 +32,7 @@ export default function ColdRooms() {
   const [rooms, setRooms] = useState<ColdRoom[]>([]);
   const [selectedRoomId, setSelectedRoomId] = useState("");
   const [history, setHistory] = useState<Reading[]>([]);
+  const [riskRefreshKey, setRiskRefreshKey] = useState(0);
   const [name, setName] = useState("");
   const [location, setLocation] = useState("");
   const [commodity, setCommodity] = useState("");
@@ -138,6 +139,7 @@ export default function ColdRooms() {
         saved += 1;
       }
       await loadHistory(selectedRoomId);
+      setRiskRefreshKey((current) => current + 1);
       setNotice(`Saved ${saved} simulated readings to this cold room. These are demo data, not sensor measurements.`);
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "Could not save demo readings.");
@@ -234,7 +236,7 @@ export default function ColdRooms() {
           </button>
         </div>
         <p className="mt-3 rounded-lg bg-amber-50 p-3 text-xs leading-5 text-amber-900">Demo-only action: this writes synthetic readings into the database. It does not connect to a sensor, and repeated clicks create additional records.</p>
-        <StoredRisk roomId={selectedRoomId} />
+        <StoredRisk roomId={selectedRoomId} refreshKey={riskRefreshKey} />
         {notice && <p role="status" className="mt-3 text-sm text-emerald-700">{notice}</p>}
         {error && <p role="alert" className="mt-3 text-sm text-rose-700">{error}</p>}
         <div className="mt-5 flex items-center justify-between gap-3">
