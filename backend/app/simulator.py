@@ -20,7 +20,7 @@ def generate_readings(samples: int = 24, seed: int = 42) -> list[TelemetryReadin
         temperature = max(1.0, min(12.0, temperature))
         battery += rng.uniform(-2.2, 1.5)
         battery = max(5.0, min(100.0, battery))
-        hour = (now - timedelta(hours=samples - index - 1)).hour
+        # Use a fixed synthetic daily cycle so values remain reproducible across requests.\n        hour = index % 24
         solar = max(0.0, 900 * rng.random()) if 6 <= hour <= 18 else 0.0
         load = 280 + 70 * rng.random()
         readings.append(
