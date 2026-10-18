@@ -1,0 +1,4 @@
+# Optional dependencies for offline ML experiments; not required to run the API.
+pandas>=2.2,<3.0
+scikit-learn>=1.5,<2.0
+joblib>=1.4,<2.0
