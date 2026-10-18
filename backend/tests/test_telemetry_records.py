@@ -145,3 +145,29 @@ def test_device_ingestion_fails_closed_in_production_without_key(
         },
     )
     assert response.status_code == 503
+
+
+def test_demo_endpoint_persists_synthetic_readings(client: TestClient) -> None:
+    room_response = client.post(
+        "/api/v1/cold-rooms",
+        json={
+            "name": "Demo Only Room",
+            "location": "Ado-Ekiti",
+            "commodity": "Tomatoes",
+            "target_min_c": 3,
+            "target_max_c": 8,
+        },
+    )
+    assert room_response.status_code == 201
+    room_id = room_response.json()["id"]
+
+    response = client.post(
+        f"/api/v1/cold-rooms/{room_id}/readings/demo?samples=5&seed=42"
+    )
+    assert response.status_code == 201
+    records = response.json()
+    assert len(records) == 5
+    assert all(record["cold_room_id"] == room_id for record in records)
+    history = client.get(f"/api/v1/cold-rooms/{room_id}/readings")
+    assert history.status_code == 200
+    assert len(history.json()) == 5
