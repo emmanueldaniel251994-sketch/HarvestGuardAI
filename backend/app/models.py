@@ -20,3 +20,21 @@ class ColdRoom(Base):
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, default=lambda: datetime.now(timezone.utc)
     )
+
+
+from sqlalchemy import ForeignKey
+
+
+class TelemetryRecord(Base):
+    __tablename__ = "telemetry_records"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    cold_room_id: Mapped[int] = mapped_column(
+        ForeignKey("cold_rooms.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    timestamp: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, index=True)
+    temperature_c: Mapped[float] = mapped_column(Float, nullable=False)
+    humidity_pct: Mapped[float] = mapped_column(Float, nullable=False)
+    battery_pct: Mapped[float] = mapped_column(Float, nullable=False)
+    solar_power_w: Mapped[float] = mapped_column(Float, nullable=False)
+    load_power_w: Mapped[float] = mapped_column(Float, nullable=False)
