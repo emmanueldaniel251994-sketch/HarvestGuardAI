@@ -1,8 +1,14 @@
 from app.schemas import RiskAssessment, TelemetryReading
 
 
-def assess_risk(readings: list[TelemetryReading]) -> RiskAssessment:
-    """Score simulated readings using transparent thresholds, not a trained model."""
+def assess_risk(
+    readings: list[TelemetryReading],
+    target_min_c: float = 2.0,
+    target_max_c: float = 8.0,
+) -> RiskAssessment:
+    """Score readings with transparent configured thresholds, not a trained model."""
+    if target_min_c >= target_max_c:
+        raise ValueError("target_min_c must be lower than target_max_c")
     if not readings:
         return RiskAssessment(score=0, level="low", factors=["No readings available"])
 
@@ -11,16 +17,25 @@ def assess_risk(readings: list[TelemetryReading]) -> RiskAssessment:
     factors: list[str] = []
 
     temperatures = [reading.temperature_c for reading in readings]
-    excursion_count = sum(temp > 8.0 or temp < 2.0 for temp in temperatures)
-    if latest.temperature_c > 8.0:
+    excursion_count = sum(
+        temp > target_max_c or temp < target_min_c for temp in temperatures
+    )
+    if latest.temperature_c > target_max_c:
         score += 40
-        factors.append("Latest temperature is above 8°C")
-    elif latest.temperature_c < 2.0:
+        factors.append(
+            f"Latest temperature is above the configured maximum ({target_max_c:g}°C)"
+        )
+    elif latest.temperature_c < target_min_c:
         score += 25
-        factors.append("Latest temperature is below 2°C")
+        factors.append(
+            f"Latest temperature is below the configured minimum ({target_min_c:g}°C)"
+        )
     if excursion_count >= max(2, len(readings) // 4):
         score += 20
-        factors.append("Repeated temperature excursions in the selected window")
+        factors.append(
+            f"Repeated temperature excursions outside the configured "
+            f"{target_min_c:g}–{target_max_c:g}°C range"
+        )
     if latest.battery_pct < 20:
         score += 25
         factors.append("Battery reserve is below 20%")
