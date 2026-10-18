@@ -12,8 +12,9 @@
 
 ## Before public production deployment
 
-- Add authentication and authorization for write endpoints.
-- Add request throttling and payload limits.
+- Add user authentication and authorization for cold-room creation, reading history, and risk endpoints; the shared device API key only protects sensor-write endpoints.
+- Replace the shared device key with per-device identity, secure key provisioning and rotation, and revocation.
+- Add request throttling and payload limits, particularly for public synthetic-demo generation.
 - Configure CORS with exact trusted frontend origins; do not use wildcard origins with credentials.
 - Store secrets only in hosting-provider environment settings.
 - Use TLS, least-privilege database credentials, managed backups, and a documented retention policy.
