@@ -24,8 +24,6 @@ type Reading = {
   load_power_w: number;
 };
 
-type DemoPayload = { readings: Reading[] };
-
 const API_URL = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000").replace(/\/$/, "");
 
 export default function ColdRooms() {
