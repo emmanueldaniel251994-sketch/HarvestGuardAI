@@ -36,7 +36,7 @@ Example JSON body:
 
 Temperature bounds are configurable metadata only; they are not verified commodity-specific recommendations. The API rejects a minimum temperature that is greater than or equal to the maximum.
 
-## Simulated telemetry
+## Stored telemetry history\n\n### Record a reading\n\n`POST /api/v1/cold-rooms/{cold_room_id}/readings`\n\nSubmit one validated reading for an existing cold room. The endpoint returns `404` when the cold-room ID is unknown. This endpoint does not authenticate sensor devices yet; do not expose it publicly until authentication and rate limiting are added.\n\n### List readings\n\n`GET /api/v1/cold-rooms/{cold_room_id}/readings?limit=100`\n\nReturns stored readings newest first. `limit` is between 1 and 500, default 100. A missing cold room returns `404`.\n\n## Simulated telemetry
 
 `GET /api/v1/demo/telemetry?samples=24&seed=42`
 
