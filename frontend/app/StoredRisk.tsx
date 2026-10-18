@@ -11,7 +11,7 @@ type RiskAssessment = {
 
 const API_URL = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000").replace(/\/$/, "");
 
-export default function StoredRisk({ roomId }: { roomId: string }) {
+export default function StoredRisk({ roomId, refreshKey = 0 }: { roomId: string; refreshKey?: number }) {
   const [risk, setRisk] = useState<RiskAssessment | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -38,7 +38,7 @@ export default function StoredRisk({ roomId }: { roomId: string }) {
       })
       .finally(() => setLoading(false));
     return () => controller.abort();
-  }, [roomId]);
+  }, [roomId, refreshKey]);
 
   const levelClass = risk?.level === "critical" || risk?.level === "high"
     ? "bg-rose-100 text-rose-800"
