@@ -19,7 +19,7 @@ A starter blueprint is provided in the repository root as `render.yaml`. You can
 4. Configure `DATABASE_URL` to a managed PostgreSQL connection string and `CORS_ORIGINS` to the exact deployed frontend origin.
 5. Run the migration as a pre-deploy command: `alembic upgrade head`.
 6. Start command: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`.
-7. Verify `/health`, `/api/v1/demo/telemetry`, and `/docs` after deployment.
+7. Verify `/health`, `/health/ready`, `/api/v1/demo/telemetry`, and `/docs` after deployment.
 
 ## Database
 
