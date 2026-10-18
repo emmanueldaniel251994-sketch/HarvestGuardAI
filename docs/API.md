@@ -50,11 +50,11 @@ Submit one validated reading for an existing cold room. The endpoint returns `40
 
 ### Record a batch of readings
 
-\`POST /api/v1/cold-rooms/{cold_room_id}/readings/bulk\`
+`POST /api/v1/cold-rooms/{cold_room_id}/readings/bulk`
 
 Request body:
 
-\`\`\`json
+```json
 {
   "readings": [
     {
@@ -67,9 +67,9 @@ Request body:
     }
   ]
 }
-\`\`\`
+```
 
-Accepts 1–168 readings and stores them in one database transaction. The endpoint is intended for demos and trusted clients until device authentication is implemented. It returns \`404\` when the cold room does not exist.
+Accepts 1–168 readings and stores them in one database transaction. The endpoint is intended for demos and trusted clients until device authentication is implemented. It returns `404` when the cold room does not exist.
 
 ### List readings
 
