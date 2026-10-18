@@ -49,3 +49,7 @@ class TelemetryRecordRead(TelemetryReading):
     cold_room_id: int
 
     model_config = {"from_attributes": True}
+
+
+class TelemetryBatchCreate(BaseModel):
+    readings: list[TelemetryReading] = Field(min_length=1, max_length=168)
