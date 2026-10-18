@@ -6,6 +6,8 @@ from app.database import get_db
 from app.models import ColdRoom, TelemetryRecord
 from app.risk import assess_risk
 from app.schemas import RiskAssessment, TelemetryBatchCreate, TelemetryReading, TelemetryRecordRead
+from app.security import require_device_api_key
+from app.simulator import generate_readings
 
 router = APIRouter(prefix="/api/v1/cold-rooms", tags=["telemetry"])
 
@@ -19,6 +21,7 @@ def ingest_reading(
     cold_room_id: int,
     payload: TelemetryReading,
     db: Session = Depends(get_db),
+    _: None = Depends(require_device_api_key),
 ) -> TelemetryRecord:
     room = db.get(ColdRoom, cold_room_id)
     if room is None:
@@ -39,13 +42,40 @@ def ingest_readings_bulk(
     cold_room_id: int,
     payload: TelemetryBatchCreate,
     db: Session = Depends(get_db),
+    _: None = Depends(require_device_api_key),
 ) -> list[TelemetryRecord]:
-    """Persist a bounded batch in one transaction for demos and trusted clients."""
+    """Persist a bounded batch in one transaction for authenticated devices."""
     if db.get(ColdRoom, cold_room_id) is None:
         raise HTTPException(status_code=404, detail="Cold room not found")
     records = [
         TelemetryRecord(cold_room_id=cold_room_id, **reading.model_dump())
         for reading in payload.readings
+    ]
+    db.add_all(records)
+    db.commit()
+    for record in records:
+        db.refresh(record)
+    return records
+
+
+@router.post(
+    "/{cold_room_id}/readings/demo",
+    response_model=list[TelemetryRecordRead],
+    status_code=status.HTTP_201_CREATED,
+)
+def save_demo_readings(
+    cold_room_id: int,
+    samples: int = Query(default=24, ge=1, le=168),
+    seed: int = Query(default=42, ge=0, le=2_147_483_647),
+    db: Session = Depends(get_db),
+) -> list[TelemetryRecord]:
+    """Generate and persist clearly synthetic demo readings; never accepts sensor data."""
+    if db.get(ColdRoom, cold_room_id) is None:
+        raise HTTPException(status_code=404, detail="Cold room not found")
+    readings = generate_readings(samples=samples, seed=seed)
+    records = [
+        TelemetryRecord(cold_room_id=cold_room_id, **reading.model_dump())
+        for reading in readings
     ]
     db.add_all(records)
     db.commit()
