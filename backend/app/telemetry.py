@@ -78,7 +78,8 @@ def assess_stored_room_risk(
     db: Session = Depends(get_db),
 ) -> RiskAssessment:
     """Return advisory threshold-based risk from the latest stored readings."""
-    if db.get(ColdRoom, cold_room_id) is None:
+    room = db.get(ColdRoom, cold_room_id)
+    if room is None:
         raise HTTPException(status_code=404, detail="Cold room not found")
     query = (
         select(TelemetryRecord)
@@ -91,4 +92,8 @@ def assess_stored_room_risk(
         TelemetryReading.model_validate(record, from_attributes=True)
         for record in reversed(newest_first)
     ]
-    return assess_risk(readings)
+    return assess_risk(
+        readings,
+        target_min_c=room.target_min_c,
+        target_max_c=room.target_max_c,
+    )
