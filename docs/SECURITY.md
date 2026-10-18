@@ -3,7 +3,9 @@
 ## Current prototype boundaries
 
 - Demo telemetry is synthetic and must be labelled as simulated.
-- The API currently has no user authentication or role-based access control.
+- Device single-reading and batch ingestion require `X-Device-API-Key` when `DEVICE_API_KEY` is configured. Production (`APP_ENV=production`) rejects sensor writes with `503` if the key is missing; local development without a key is intentionally permissive for testing.
+- The synthetic `/api/v1/cold-rooms/{id}/readings/demo` endpoint is separate and does not accept client-supplied sensor values. It remains a demo-only write surface and should be rate-limited before public launch.
+- Cold-room registration, reading history, and risk endpoints still have no user authentication or role-based access control.
 - Cold-room registration endpoints are suitable only for controlled demos until access controls and abuse protections are implemented.
 - Do not store credentials, provider tokens, customer personal data, or production secrets in the repository.
 - The prototype does not send equipment commands and must never be used to bypass physical refrigeration, battery, inverter, or electrical protections.
