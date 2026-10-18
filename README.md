@@ -60,7 +60,7 @@ pytest
 ## Implemented so far
 
 - FastAPI health endpoint.
-- Cold-room registration and listing API.
+- Cold-room registration and listing API.\n- Persisted telemetry ingestion and history endpoints.
 - SQLAlchemy cold-room model and initial Alembic migration.
 - Reproducible simulated telemetry endpoint.
 - Explainable threshold-based risk assessment.
