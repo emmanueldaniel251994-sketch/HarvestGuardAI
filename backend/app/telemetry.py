@@ -4,7 +4,8 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.models import ColdRoom, TelemetryRecord
-from app.schemas import TelemetryReading, TelemetryRecordRead
+from app.risk import assess_risk
+from app.schemas import RiskAssessment, TelemetryReading, TelemetryRecordRead
 
 router = APIRouter(prefix="/api/v1/cold-rooms", tags=["telemetry"])
 
@@ -44,3 +45,26 @@ def list_readings(
         .limit(limit)
     )
     return list(db.scalars(query).all())
+
+
+@router.get("/{cold_room_id}/risk", response_model=RiskAssessment)
+def assess_stored_room_risk(
+    cold_room_id: int,
+    limit: int = Query(default=24, ge=1, le=168),
+    db: Session = Depends(get_db),
+) -> RiskAssessment:
+    """Return advisory threshold-based risk from the latest stored readings."""
+    if db.get(ColdRoom, cold_room_id) is None:
+        raise HTTPException(status_code=404, detail="Cold room not found")
+    query = (
+        select(TelemetryRecord)
+        .where(TelemetryRecord.cold_room_id == cold_room_id)
+        .order_by(TelemetryRecord.timestamp.desc(), TelemetryRecord.id.desc())
+        .limit(limit)
+    )
+    newest_first = list(db.scalars(query).all())
+    readings = [
+        TelemetryReading.model_validate(record, from_attributes=True)
+        for record in reversed(newest_first)
+    ]
+    return assess_risk(readings)
