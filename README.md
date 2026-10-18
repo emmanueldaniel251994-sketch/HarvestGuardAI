@@ -61,19 +61,22 @@ pytest
 
 - FastAPI health endpoint.
 - Cold-room registration and listing API.
-- Persisted telemetry ingestion and history endpoints.
+- Persisted telemetry ingestion, batch upload, and history endpoints.
 - Per-cold-room advisory risk endpoint based on stored readings.
 - Dashboard view for registered rooms, stored reading history, and risk factors.
 - SQLAlchemy cold-room and telemetry models with Alembic migrations.
 - Reproducible simulated telemetry endpoint.
 - Explainable threshold-based risk assessment.
 - Dashboard component that requests telemetry from the API.
+- Database readiness endpoint and Render deployment blueprint (`render.yaml`).
+- Sensor integration contract and hackathon demo walkthrough in `docs/`.
 - Backend tests and GitHub Actions workflow configuration.
 
 ## Planned next
 
 - Verify CI and frontend production build.
-- Connect cold-room selection and stored history to the dashboard.
+- Add authenticated device ingestion before real sensor integration.
+- Implement and test CSV export for stored readings.
 - Add commodity-specific profiles with reviewed thresholds.
 - Add baseline ML experiments, metrics and model card before making predictive claims.
 - Deploy frontend to Vercel and backend to Render.
