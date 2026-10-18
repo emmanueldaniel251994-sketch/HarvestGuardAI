@@ -125,14 +125,10 @@ export default function ColdRooms() {
     setNotice(null);
     setSeeding(true);
     try {
-      const demoResponse = await fetch(API_URL + "/api/v1/demo/telemetry?samples=24&seed=42");
-      if (!demoResponse.ok) throw new Error("Demo API returned HTTP " + demoResponse.status);
-      const demo = (await demoResponse.json()) as DemoPayload;
-      const response = await fetch(API_URL + "/api/v1/cold-rooms/" + selectedRoomId + "/readings/bulk", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ readings: demo.readings }),
-      });
+      const response = await fetch(
+        API_URL + "/api/v1/cold-rooms/" + selectedRoomId + "/readings/demo?samples=24&seed=42",
+        { method: "POST" },
+      );
       if (!response.ok) {
         const body = (await response.json().catch(() => ({}))) as { detail?: string };
         throw new Error(body.detail || ("Could not save demo readings (HTTP " + response.status + ")."));
@@ -148,8 +144,6 @@ export default function ColdRooms() {
       setSeeding(false);
     }
   }
-  const inputClass = "mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/15";
-
   function exportReadingsCsv() {
     if (!history.length) return;
     const columns: (keyof Reading)[] = [
